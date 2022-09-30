@@ -7,13 +7,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class Tree {
+	public String sha1;
 	public Tree (ArrayList <String> listy) throws NoSuchAlgorithmException, IOException {
 		//create string from arraylist create string with new line
 		//turn string into parameter
 		//create file from sha1
 		String fromList = listy.get(0);
 		for (int i = 1; i < listy.size(); i ++) {
-			fromList += listy.get(i);
+			fromList += "\n"+listy.get(i);
 		}
 		FileWriter fOne = new FileWriter("tree.txt");//output file
 		PrintWriter printW = new PrintWriter (fOne);//writing stuff onto fw
@@ -24,6 +25,7 @@ public class Tree {
 		}
 		Blob b = new Blob ("tree.txt");
 		String newFile = b.generateSHA1Hash(fromList); // fromList is not a filepath -- this is why it's throwing an error
+		sha1 = newFile;
 		FileWriter fTwo = new FileWriter(newFile);//output file
 		PrintWriter printW2 = new PrintWriter (fTwo);//writing stuff onto fw
 		printW2.write("fromList");

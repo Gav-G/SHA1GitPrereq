@@ -15,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
@@ -31,7 +32,7 @@ public class Commit {
 	private String hash;
 	private String content;
 	
-	public Commit (String treeSHAPath, String summary1, String author1, Commit parent1) throws NoSuchAlgorithmException, IOException {
+	public Commit (String summary1, String author1, Commit parent1) throws NoSuchAlgorithmException, IOException {
 		nextCommit = null;
 		parent = parent1;
 		summary = summary1;
@@ -41,12 +42,12 @@ public class Commit {
 		date = this.getDate();
 		this.connectParent();
 		//SHA1 hash is produced by new line deliminated info
-		String pSHA = "";
-		if (parent == null)
-			pSHA = "";
-		else
-			pSHA = "./objects/" + parent.returnSha();
-		String info = summary + "\n" + date + "\n" + author + "\n" + pSHA;
+//		String pSHA = "";
+//		if (parent == null)
+//			pSHA = "";
+//		else
+//			pSHA = "./objects/" + parent.returnSha();
+		String info = summary + "\n" + date + "\n" + author + "\n" + tree.sha1;
 		this.writeFile("./hashFile", info);
 		this.generateSHA1Hash("./hashFile");
 		File hashFile = new File ("./hashFile");
@@ -64,11 +65,17 @@ public class Commit {
 			arr.add("blob : "+sha + " "+fileName);
 		}
 		sc.close();
+		
 		return arr;
 		
 	}
 	
-	
+
+	private String toSHA1(String str) throws NoSuchAlgorithmException {
+		byte[] convertme = str.getBytes();
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
+		return Base64.getEncoder().encodeToString(md.digest(convertme));
+	}
 	
 	//creates the SHA-named file in objects
 		public void writesFileToObjects () throws IOException, NoSuchAlgorithmException {
