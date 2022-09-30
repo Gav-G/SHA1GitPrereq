@@ -38,7 +38,7 @@ public class Index {
 	//creates blob from file, stores hash in hashmap, and updates index file
 	// file MUST be created in the same project
 	public void add (String fileName) throws NoSuchAlgorithmException, IOException {
-		Blob blob = new Blob ("./" + fileName);
+		Blob blob = new Blob ("/objects/" + fileName);
 		hash = blob.getHash();
 		txtMap.put (fileName, hash);
 

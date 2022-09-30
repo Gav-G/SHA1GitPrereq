@@ -2,6 +2,7 @@ package git;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,13 +14,17 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Scanner;
 
 public class Commit {
 	private Commit nextCommit;
 	private Commit parent;
 	private String pTree;
+	private Tree tree;
+	ArrayList<String> treeContents;
 	private String summary;
 	private String author;
 	private String date;
@@ -29,15 +34,16 @@ public class Commit {
 	public Commit (String treeSHAPath, String summary1, String author1, Commit parent1) throws NoSuchAlgorithmException, IOException {
 		nextCommit = null;
 		parent = parent1;
-		pTree = treeSHAPath;
 		summary = summary1;
 		author = author1;
+		treeContents = getTreeContents();
+		tree = new Tree(treeContents);
 		date = this.getDate();
 		this.connectParent();
 		//SHA1 hash is produced by new line deliminated info
 		String pSHA = "";
 		if (parent == null)
-			pSHA = "null";
+			pSHA = "";
 		else
 			pSHA = "./objects/" + parent.returnSha();
 		String info = summary + "\n" + date + "\n" + author + "\n" + pSHA;
@@ -47,6 +53,23 @@ public class Commit {
 		hashFile.delete();
 	}
 	
+	private ArrayList<String> getTreeContents() {
+		ArrayList<String> arr = new ArrayList<String>();
+		String fileName;
+		String sha;
+		Scanner sc = new Scanner("./index");
+		while(sc.hasNextLine()) {
+			fileName = sc.next();
+			sha = (sc.next() + sc.next()).substring(1);
+			arr.add("blob : "+sha + " "+fileName);
+		}
+		sc.close();
+		return arr;
+		
+	}
+	
+	
+	
 	//creates the SHA-named file in objects
 		public void writesFileToObjects () throws IOException, NoSuchAlgorithmException {
 			
@@ -54,7 +77,7 @@ public class Commit {
 			File obj = new File ("./objects");
 			obj.mkdir();
 			this.createsNewFile();
-			File commitText = new File ("./commit.txt");
+			File commitText = new File ("commit.txt");
 			commitText.delete();
 		}
 	
