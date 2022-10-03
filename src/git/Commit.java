@@ -1,5 +1,6 @@
 package git;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -31,6 +32,7 @@ public class Commit {
 	private String date;
 	private String hash;
 	private String content;
+	private File head;
 	
 	public Commit (String summary1, String author1, Commit parent1) throws NoSuchAlgorithmException, IOException {
 		nextCommit = null;
@@ -52,15 +54,21 @@ public class Commit {
 		this.generateSHA1Hash("./hashFile");
 		File hashFile = new File ("./hashFile");
 		hashFile.delete();
+		head.delete();
+		head = new File("./HEAD");
+		head.createNewFile();
+		FileWriter fw = new FileWriter("./HEAD");
+		fw.write(hash);
+		fw.close();
+		
 	}
 	
-	public boolean deleteFile(String fileName) throws NoSuchAlgorithmException {
-		String fileSha = toSHA1(fileName);
-		
-		
-		
-		
-		
+	public boolean deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
+		FileWriter fw = new FileWriter("./index");
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.append("*deleted* "+fileName);
+		bw.close();
+		fw.close();
 		return true;
 	}
 	

@@ -13,16 +13,19 @@ public class Index {
 	private File obj;
 	private HashMap <String, String> txtMap;
 	private String hash;
+	private File head;
 
 	public Index () {
 		index = new File ("./index");
+		head = new File("./HEAD");
 		obj = new File ("./objects");
 		obj.mkdir();
 	}
 
 	// initializes index file and objects folder in test
-	public void init () {
+	public void init () throws IOException {
 		index.delete();
+		head.delete();
 		if (obj.exists()) {
 			File[] contents = obj.listFiles();
 			for (File f : contents) {
@@ -30,6 +33,7 @@ public class Index {
 	        }
 		}
 		index = new File ("./index");
+		head = new File("./HEAD");
 		obj = new File ("./objects");
 		obj.mkdir(); 
 		txtMap = new HashMap <String, String> ();
