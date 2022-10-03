@@ -47,12 +47,23 @@ public class Commit {
 //			pSHA = "";
 //		else
 //			pSHA = "./objects/" + parent.returnSha();
-		String info = summary + "\n" + date + "\n" + author + "\n" + tree.sha1;
+		String info = summary + "\n" + date + "\n" + author + "\n" + getTreeSha1();
 		this.writeFile("./hashFile", info);
 		this.generateSHA1Hash("./hashFile");
 		File hashFile = new File ("./hashFile");
 		hashFile.delete();
 	}
+	
+	public boolean deleteFile(String fileName) throws NoSuchAlgorithmException {
+		String fileSha = toSHA1(fileName);
+		
+		
+		
+		
+		
+		return true;
+	}
+	
 	
 	private ArrayList<String> getTreeContents() throws NoSuchAlgorithmException, IOException {
 		ArrayList<String> arr = new ArrayList<String>();
@@ -76,11 +87,11 @@ public class Commit {
 		return (tree.getSha1());
 	}
 
-//	private String toSHA1(String str) throws NoSuchAlgorithmException {
-//		byte[] convertme = str.getBytes();
-//		MessageDigest md = MessageDigest.getInstance("SHA-1");
-//		return Base64.getEncoder().encodeToString(md.digest(convertme));
-//	}
+	private String toSHA1(String str) throws NoSuchAlgorithmException {
+		byte[] convertme = str.getBytes();
+		MessageDigest md = MessageDigest.getInstance("SHA-1");
+		return Base64.getEncoder().encodeToString(md.digest(convertme));
+	}
 //	
 	//creates the SHA-named file in objects
 		public void writesFileToObjects () throws IOException, NoSuchAlgorithmException {
