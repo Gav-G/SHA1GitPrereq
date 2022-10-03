@@ -11,7 +11,7 @@ import java.util.Map;
 public class Index {
 	private File index;
 	private File obj;
-	private HashMap <String, String> txtMap;
+//	private HashMap <String, String> txtMap;
 	private String hash;
 	private File head;
 
@@ -36,7 +36,7 @@ public class Index {
 		head = new File("./HEAD");
 		obj = new File ("./objects");
 		obj.mkdir(); 
-		txtMap = new HashMap <String, String> ();
+//		txtMap = new HashMap <String, String> ();
 	}
 
 	//creates blob from file, stores hash in hashmap, and updates index file
@@ -44,35 +44,37 @@ public class Index {
 	public void add (String fileName) throws NoSuchAlgorithmException, IOException {
 		Blob blob = new Blob ("/objects/" + fileName);
 		hash = blob.getHash();
-		txtMap.put (fileName, hash);
-
-		this.updateIndex();
+		BufferedWriter bw = new BufferedWriter(new FileWriter("./index"));
+		bw.append(fileName + " : " + hash);
+		bw.close();
+		//txtMap.put (fileName, hash);
+//		this.updateIndex();
 	}
 
-	public void updateIndex () throws IOException {
-		BufferedWriter bf = new BufferedWriter(new FileWriter(index));
-
-		// iterate map entries
-		for (Map.Entry<String, String> entry :
-			txtMap.entrySet()) {
-
-			// put key and value separated by a colon
-			bf.write(entry.getKey() + " : "
-					+ entry.getValue());
-
-			// new line
-			bf.newLine();
-		}
-		bf.close();
-	}
+//	public void updateIndex () throws IOException {
+//		BufferedWriter bf = new BufferedWriter(new FileWriter(index));
+//
+//		// iterate map entries
+//		for (Map.Entry<String, String> entry :
+//			txtMap.entrySet()) {
+//
+//			// put key and value separated by a colon
+//			bf.write(entry.getKey() + " : "
+//					+ entry.getValue());
+//
+//			// new line
+//			bf.newLine();
+//		}
+//		bf.close();
+//	}
 	
 	// removes file from index and objects folder
-	public void remove (String fileName) throws IOException, NoSuchAlgorithmException {
-		File f = new File ("objects/"+txtMap.get(fileName)+".zip");
-		f.delete();
-		txtMap.remove(fileName);
-		this.updateIndex();
-	}
+//	public void remove (String fileName) throws IOException, NoSuchAlgorithmException {
+//		File f = new File ("objects/"+txtMap.get(fileName)+".zip");
+//		f.delete();
+//		txtMap.remove(fileName);
+//		this.updateIndex();
+//	}
 }
 
 
