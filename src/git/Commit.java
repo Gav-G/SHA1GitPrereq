@@ -54,7 +54,7 @@ public class Commit {
 		hashFile.delete();
 	}
 	
-	private ArrayList<String> getTreeContents() {
+	private ArrayList<String> getTreeContents() throws NoSuchAlgorithmException, IOException {
 		ArrayList<String> arr = new ArrayList<String>();
 		String fileName;
 		String sha;
@@ -65,18 +65,20 @@ public class Commit {
 			arr.add("blob : "+sha + " "+fileName);
 		}
 		sc.close();
-		
+		if (parent != null) {
+			arr.add("tree : "+ parent.tree.sha1);
+		}
 		return arr;
 		
 	}
 	
 
-	private String toSHA1(String str) throws NoSuchAlgorithmException {
-		byte[] convertme = str.getBytes();
-		MessageDigest md = MessageDigest.getInstance("SHA-1");
-		return Base64.getEncoder().encodeToString(md.digest(convertme));
-	}
-	
+//	private String toSHA1(String str) throws NoSuchAlgorithmException {
+//		byte[] convertme = str.getBytes();
+//		MessageDigest md = MessageDigest.getInstance("SHA-1");
+//		return Base64.getEncoder().encodeToString(md.digest(convertme));
+//	}
+//	
 	//creates the SHA-named file in objects
 		public void writesFileToObjects () throws IOException, NoSuchAlgorithmException {
 			
@@ -102,6 +104,7 @@ public class Commit {
 		File contentFile = new File ("./commit.txt");
 		return contentFile;
 	}
+	
 	
 	private String returnSha () throws NoSuchAlgorithmException, IOException {
 		return hash;
