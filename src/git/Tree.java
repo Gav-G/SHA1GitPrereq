@@ -34,4 +34,7 @@ public class Tree {
 		   printW2.close();
 		}
 	}
+	public String getSha1() {
+		return sha1;
+	}
 }

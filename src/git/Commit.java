@@ -66,12 +66,15 @@ public class Commit {
 		}
 		sc.close();
 		if (parent != null) {
-			arr.add("tree : "+ parent.tree.sha1);
+			arr.add("tree : "+ parent.getTreeSha1());
 		}
 		return arr;
 		
 	}
 	
+	public String getTreeSha1() {
+		return (tree.getSha1());
+	}
 
 //	private String toSHA1(String str) throws NoSuchAlgorithmException {
 //		byte[] convertme = str.getBytes();
