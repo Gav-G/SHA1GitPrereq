@@ -63,6 +63,15 @@ public class Commit {
 		
 	}
 	
+	public boolean editFile(String fileName) throws NoSuchAlgorithmException, IOException {
+		FileWriter fw = new FileWriter("./index");
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.append("*edited* "+fileName);
+		bw.close();
+		fw.close();
+		return true;
+	}
+	
 	public boolean deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
 		FileWriter fw = new FileWriter("./index");
 		BufferedWriter bw = new BufferedWriter(fw);
