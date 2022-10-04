@@ -25,12 +25,12 @@ public class Blob {
 		fileContent = this.content(filePath);
 		this.generateSHA1Hash(filePath);
 		String hashFile = this.createsNewFile();
-		String zipFilePath = this.zipFile(hashFile);
-		storesZippedContent = this.content(zipFilePath);
+	//	String zipFilePath = this.zipFile(hashFile);
+		//storesZippedContent = this.content(zipFilePath);
 		System.out.println ("Reading contents of " + filePath + ": " + fileContent);
 
 		//only displays the first 10 letters of the hash
-		System.out.println ("Creating new blob " + SHA1Hash.substring(0,10) + " from content: " + storesZippedContent);
+		//System.out.println ("Creating new blob " + SHA1Hash.substring(0,10) + " from content: " + storesZippedContent);
 		
 
 	}

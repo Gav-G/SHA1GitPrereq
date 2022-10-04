@@ -43,12 +43,14 @@ public class Commit {
 		tree = new Tree(treeContents);
 		date = this.getDate();
 		this.connectParent();
+		
 		//SHA1 hash is produced by new line deliminated info
 //		String pSHA = "";
 //		if (parent == null)
 //			pSHA = "";
 //		else
 //			pSHA = "./objects/" + parent.returnSha();
+		
 		String info = summary + "\n" + date + "\n" + author + "\n" + getTreeSha1();
 		this.writeFile("./hashFile", info);
 		this.generateSHA1Hash("./hashFile");
@@ -60,6 +62,8 @@ public class Commit {
 		FileWriter fw = new FileWriter("./HEAD");
 		fw.write(hash);
 		fw.close();
+		
+		File ind = new File("./index");
 		
 	}
 	
@@ -86,11 +90,22 @@ public class Commit {
 		ArrayList<String> arr = new ArrayList<String>();
 		String fileName;
 		String sha;
-		Scanner sc = new Scanner("./index");
+		File ind = new File("./index");
+		Scanner sc = new Scanner(ind);
 		while(sc.hasNextLine()) {
 			fileName = sc.next();
-			sha = (sc.next() + sc.next()).substring(1);
-			arr.add("blob : "+sha + " "+fileName);
+			if(fileName.charAt(0) == '*') {
+				String nFileName = sc.next();
+				for(int i = 0; i<arr.size(); i++) {
+					if(arr.get(i).contains(nFileName)) {
+						arr.remove(i);
+						break;
+					}
+				}
+			}else {
+				sha = (sc.next() + sc.next()).substring(1);
+				arr.add("blob : "+sha + " "+fileName);
+			}
 		}
 		sc.close();
 		if (parent != null) {

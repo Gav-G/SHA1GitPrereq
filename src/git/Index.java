@@ -24,6 +24,8 @@ public class Index {
 
 	// initializes index file and objects folder in test
 	public void init () throws IOException {
+		if(head != null)
+			head.delete();
 		index.delete();
 		head.delete();
 		if (obj.exists()) {
@@ -42,7 +44,7 @@ public class Index {
 	//creates blob from file, stores hash in hashmap, and updates index file
 	// file MUST be created in the same project
 	public void add (String fileName) throws NoSuchAlgorithmException, IOException {
-		Blob blob = new Blob ("/objects/" + fileName);
+		Blob blob = new Blob (fileName);
 		hash = blob.getHash();
 		BufferedWriter bw = new BufferedWriter(new FileWriter("./index"));
 		bw.append(fileName + " : " + hash);
