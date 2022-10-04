@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Index {
 	private File index;
@@ -37,6 +38,9 @@ public class Index {
 		index = new File ("./index");
 		head = new File("./HEAD");
 		obj = new File ("./objects");
+		index.createNewFile();
+		head.createNewFile();
+		obj.createNewFile();
 		obj.mkdir(); 
 //		txtMap = new HashMap <String, String> ();
 	}
@@ -46,8 +50,16 @@ public class Index {
 	public void add (String fileName) throws NoSuchAlgorithmException, IOException {
 		Blob blob = new Blob (fileName);
 		hash = blob.getHash();
-		BufferedWriter bw = new BufferedWriter(new FileWriter("./index"));
-		bw.append(fileName + " : " + hash);
+		String indCont = "";
+		Scanner sc = new Scanner(index);
+		if(sc.hasNextLine()) {
+			indCont= sc.nextLine();
+		while(sc.hasNextLine()) {
+			indCont += "\n"+sc.nextLine();
+		}
+		}
+		BufferedWriter bw = new BufferedWriter(new FileWriter(index));
+		bw.append(indCont + "\n"+fileName + " : " + hash);
 		bw.close();
 		//txtMap.put (fileName, hash);
 //		this.updateIndex();

@@ -16,6 +16,7 @@ public class Tree {
 		for (int i = 1; i < listy.size(); i ++) {
 			fromList += "\n"+listy.get(i);
 		}
+		System.out.println("\n\nLIST: \n"+fromList+"\n");
 		FileWriter fOne = new FileWriter("tree.txt");//output file
 		PrintWriter printW = new PrintWriter (fOne);//writing stuff onto fw
 		printW.write(fromList);
@@ -24,7 +25,9 @@ public class Tree {
 		   printW.close();
 		}
 		Blob b = new Blob ("tree.txt");
-		String newFile = b.generateSHA1Hash(fromList.substring(7,fromList.substring(7).indexOf(" ")+7)); // fromList is not a filepath -- this is why it's throwing an error
+		
+		String newFile = b.generateSHA1Hash("./objects/"+fromList.substring(7,fromList.substring(7).indexOf(" ")+7)); // fromList is not a filepath -- this is why it's throwing an error
+		System.out.println("TREE: " + "./objects/"+fromList.substring(7,fromList.substring(7).indexOf(" ")+7));
 		sha1 = newFile;
 		FileWriter fTwo = new FileWriter(newFile);//output file
 		PrintWriter printW2 = new PrintWriter (fTwo);//writing stuff onto fw

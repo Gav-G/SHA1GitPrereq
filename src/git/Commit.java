@@ -56,7 +56,8 @@ public class Commit {
 		this.generateSHA1Hash("./hashFile");
 		File hashFile = new File ("./hashFile");
 		hashFile.delete();
-		head.delete();
+		if(head != null)
+			head.delete();
 		head = new File("./HEAD");
 		head.createNewFile();
 		FileWriter fw = new FileWriter("./HEAD");
@@ -139,13 +140,17 @@ public class Commit {
 	//creates a file with these contents
 	private File contentOfFile () throws NoSuchAlgorithmException, IOException {
 		String pSHA = "";
+		String treeSha = this.getTreeSha1();
 		String c = "";
 		if (parent != null)
 			pSHA = "./objects/" + parent.returnSha();
 		if (nextCommit != null)
-			c = "./objects/" + nextCommit.returnSha();
+			//c = "./objects/" + nextCommit.returnSha();
+		if(treeSha == null) 
+			treeSha = "";
 		
-		content = pTree + "\n" + pSHA + "\n" + c + "\n" + author + "\n" + date + "\n" + summary;
+		
+		content = treeSha + "\n" + pSHA + "\n" + c + "\n" + author + "\n" + date + "\n" + summary;
 		this.writeFile("commit.txt", content);
 		File contentFile = new File ("./commit.txt");
 		return contentFile;
@@ -159,6 +164,12 @@ public class Commit {
 	//sets the parent's nextCommit to child
 	private void setNextCommit (Commit child) throws NoSuchAlgorithmException, IOException {
 		nextCommit = child;
+		Files.deleteIfExists(Paths.get(hash));
+		File updated = new File("./objects/"+hash);
+		this.contentOfFile();
+		BufferedWriter bw = new BufferedWriter(new FileWriter(updated));
+		bw.append(content);
+		bw.close();
 	}
 	
 	//sets the parent's nextCommit to this Commit
@@ -172,17 +183,19 @@ public class Commit {
 
 	//generates SHA1Hash
 	private String generateSHA1Hash (String filePath) throws IOException, NoSuchAlgorithmException {
-		//https://gist.github.com/zeroleaf/6809843
-		FileInputStream fileInputStream = new FileInputStream(filePath);
-		MessageDigest digest = MessageDigest.getInstance("SHA-1");
-		DigestInputStream digestInputStream = new DigestInputStream(fileInputStream, digest);
-		byte[] bytes = new byte[1024];
-		// read all file content
-		while (digestInputStream.read(bytes) > 0);
-
-		// digest = digestInputStream.getMessageDigest();
-		byte[] resultByteArry = digest.digest();
-		hash = bytesToHexString(resultByteArry);
+//		//https://gist.github.com/zeroleaf/6809843
+//		FileInputStream fileInputStream = new FileInputStream(filePath);
+//		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+//		DigestInputStream digestInputStream = new DigestInputStream(fileInputStream, digest);
+//		byte[] bytes = new byte[1024];
+//		// read all file content
+//		while (digestInputStream.read(bytes) > 0);
+//
+//		// digest = digestInputStream.getMessageDigest();
+//		byte[] resultByteArry = digest.digest();
+//		hash = bytesToHexString(resultByteArry);
+//		return hash;
+		hash = toSHA1(filePath);
 		return hash;
 		
 	}
@@ -197,7 +210,7 @@ public class Commit {
 	
 	//writes String into file
 	private void writeFile (String fileName, String content) throws IOException {
-		
+		System.out.println("\nFile name:" + fileName + "\n\ncontent:\n" + content);
 		 Path p = Paths.get(fileName);
 	        try {
 	            Files.writeString(p, content, StandardCharsets.ISO_8859_1);

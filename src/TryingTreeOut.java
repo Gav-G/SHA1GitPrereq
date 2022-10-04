@@ -27,17 +27,17 @@ public class TryingTreeOut {
 		Commit com1 = new Commit("summary1", "Author1", null);
 		com1.writesFileToObjects();
 		
-		Commit com2 = new Commit("summary2", "Author2", com1);
-		com2.writesFileToObjects();
-		
-		Commit com3 = new Commit("summary3", "Author3", com2);
-		com3.writesFileToObjects();
-		
-		Commit com4 = new Commit("summary4", "Author4", com3);
-		com4.writesFileToObjects();
-		
-		Commit com5 = new Commit("summary5", "Author5", com4);
-		com5.writesFileToObjects();
+//		Commit com2 = new Commit("summary2", "Author2", com1);
+//		com2.writesFileToObjects();
+//		
+//		Commit com3 = new Commit("summary3", "Author3", com2);
+//		com3.writesFileToObjects();
+//		
+//		Commit com4 = new Commit("summary4", "Author4", com3);
+//		com4.writesFileToObjects();
+//		
+//		Commit com5 = new Commit("summary5", "Author5", com4);
+//		com5.writesFileToObjects();
 		
 	}
 
