@@ -63,8 +63,9 @@ public class Commit {
 		FileWriter fw = new FileWriter("./HEAD");
 		fw.write(hash);
 		fw.close();
-		
+		Files.deleteIfExists(Paths.get("./index"));
 		File ind = new File("./index");
+		ind.createNewFile();
 		
 	}
 	
@@ -130,8 +131,8 @@ public class Commit {
 		public void writesFileToObjects () throws IOException, NoSuchAlgorithmException {
 			
 			this.contentOfFile();
-			File obj = new File ("./objects");
-			obj.mkdir();
+//			File obj = new File ("./objects");
+//			obj.mkdir();
 			this.createsNewFile();
 			File commitText = new File ("commit.txt");
 			commitText.delete();
@@ -142,15 +143,19 @@ public class Commit {
 		String pSHA = "";
 		String treeSha = this.getTreeSha1();
 		String c = "";
+		if (nextCommit != null) {
+			c = "./objects/" + nextCommit.returnSha();
+		}
 		if (parent != null)
 			pSHA = "./objects/" + parent.returnSha();
 		if (nextCommit != null)
 			//c = "./objects/" + nextCommit.returnSha();
-		if(treeSha == null) 
+		if(treeSha == null) {
 			treeSha = "";
+		}
 		
 		
-		content = treeSha + "\n" + pSHA + "\n" + c + "\n" + author + "\n" + date + "\n" + summary;
+		content = "./objects/"+treeSha + "\n" + pSHA + "\n" + c + "\n" + author + "\n" + date + "\n" + summary;
 		this.writeFile("commit.txt", content);
 		File contentFile = new File ("./commit.txt");
 		return contentFile;
@@ -164,7 +169,7 @@ public class Commit {
 	//sets the parent's nextCommit to child
 	private void setNextCommit (Commit child) throws NoSuchAlgorithmException, IOException {
 		nextCommit = child;
-		Files.deleteIfExists(Paths.get(hash));
+		//Files.deleteIfExists(Paths.get("./objects/"+hash));
 		File updated = new File("./objects/"+hash);
 		this.contentOfFile();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(updated));
