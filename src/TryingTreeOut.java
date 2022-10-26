@@ -16,8 +16,8 @@ public class TryingTreeOut {
 		Blob blob1 = new Blob("blob1.txt");
 		Blob blob2 = new Blob("blob2.txt");
 		Blob blob3 = new Blob("blob3.txt");
-		Blob blob4 = new Blob("blob4.txt");
-		Blob blob5 = new Blob("blob5.txt");
+//		Blob blob4 = new Blob("blob4.txt");
+//		Blob blob5 = new Blob("blob5.txt");
 		ind.add("blob1.txt");
 		ind.add("blob2.txt");
 	
@@ -29,19 +29,19 @@ public class TryingTreeOut {
 		
 		Commit com2 = new Commit("summary2", "Author2", com1);
 		com2.writesFileToObjects();
-		
-		
-		ind.add("blob4.txt");
-		ind.add("blob5.txt");
-		
-		Commit com3 = new Commit("summary3", "Author3", com2);
-		com3.writesFileToObjects();
-		
-		Commit com4 = new Commit("summary4", "Author4", com3);
-		com4.writesFileToObjects();
-		
-		Commit com5 = new Commit("summary5", "Author5", com4);
-		com5.writesFileToObjects();
+//		
+//		
+//		ind.add("blob4.txt");
+//		ind.add("blob5.txt");
+//		
+//		Commit com3 = new Commit("summary3", "Author3", com2);
+//		com3.writesFileToObjects();
+//		
+//		Commit com4 = new Commit("summary4", "Author4", com3);
+//		com4.writesFileToObjects();
+//		
+//		Commit com5 = new Commit("summary5", "Author5", com4);
+//		com5.writesFileToObjects();
 		
 	}
 
