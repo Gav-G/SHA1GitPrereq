@@ -58,6 +58,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -73,11 +75,13 @@ public class Tree {
 		treeStr = arrLstToStr(arr);
 		treeSha1 = getSHA(treeStr);
 
-		System.out.println("str: "+treeStr + " sha: "+treeSha1);
+//		System.out.println("str: "+treeStr + " sha: "+treeSha1);
+//		System.out.println(new File("objects", ".").getAbsoluteFile());
 		Files.deleteIfExists(Paths.get("./objects/" + treeSha1));
-		File treeFile = new File("./objects", treeSha1);
-		System.out.println();
-		System.out.println(treeFile.exists());
+		File treeFile = new File("objects", treeSha1);
+//		System.out.println(treeFile.getAbsoluteFile());
+//		System.out.println();
+//		System.out.println(treeFile.exists());
 		treeFile.createNewFile();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(treeFile));
 		//FileWriter fw = new FileWriter(treeFile);
@@ -101,9 +105,11 @@ public class Tree {
 	}
 	
 	
-	private String getSHA(String convertme) throws NoSuchAlgorithmException {
-		byte[] bytes = convertme.getBytes();
-	    MessageDigest md = MessageDigest.getInstance("SHA-1");
-	    return Base64.getEncoder().encodeToString(md.digest(bytes));
+	private String getSHA(String value) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		digest.reset();
+		digest.update(value.getBytes("utf8"));
+		String sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+		return sha1;
 	}
 }

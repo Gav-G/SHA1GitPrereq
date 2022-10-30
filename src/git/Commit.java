@@ -1,11 +1,14 @@
 package git;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +27,7 @@ import java.util.Scanner;
 public class Commit {
 	private Commit nextCommit;
 	private Commit parent;
-	private String pTree;
+	private String pCSha;
 	private Tree tree;
 	ArrayList<String> treeContents;
 	private String summary;
@@ -32,17 +35,27 @@ public class Commit {
 	private String date;
 	private String hash;
 	private String content;
-	private File head;
+	public static File head;
+	
+//	Layout: 
+//		- Tree SHA1 Pointer
+//		- Parent Commit SHA1 Pointer
+//		- Child Commit SHA1 Pointer
 	
 	public Commit (String summary1, String author1, Commit parent1) throws NoSuchAlgorithmException, IOException {
 		nextCommit = null;
 		parent = parent1;
+		if(parent1 != null) {
+			pCSha = parent1.returnSha();
+		}else {
+			pCSha = "";
+		}
 		summary = summary1;
 		author = author1;
 		treeContents = getTreeContents();
 		tree = new Tree(treeContents);
 		date = this.getDate();
-		this.connectParent();
+		
 		
 		//SHA1 hash is produced by new line deliminated info
 //		String pSHA = "";
@@ -52,10 +65,9 @@ public class Commit {
 //			pSHA = "./objects/" + parent.returnSha();
 		
 		String info = summary + "\n" + date + "\n" + author + "\n" + getTreeSha1();
-		this.writeFile("./hashFile", info);
-		this.generateSHA1Hash("./hashFile");
-		File hashFile = new File ("./hashFile");
-		hashFile.delete();
+		hash = toSHA1(contentOfFile());
+		this.connectParent();
+		makeComFile();
 		if(head != null)
 			head.delete();
 		head = new File("./HEAD");
@@ -67,6 +79,16 @@ public class Commit {
 		File ind = new File("./index");
 		ind.createNewFile();
 		
+	}
+	//Writes or updates CommitFile into objects Folder
+	private void makeComFile() throws IOException, NoSuchAlgorithmException{
+		Files.deleteIfExists(Paths.get("./objects/"+hash));
+		File comt = new File("./objects/"+hash);
+		comt.createNewFile();
+		FileWriter fw = new FileWriter(comt);
+		BufferedWriter bw = new BufferedWriter(fw);
+		bw.write(contentOfFile());
+		bw.close(); fw.close();
 	}
 	
 	public boolean editFile(String fileName) throws NoSuchAlgorithmException, IOException {
@@ -118,13 +140,16 @@ public class Commit {
 	}
 	
 	public String getTreeSha1() {
+		System.out.println("Tree Contents: \n"+treeContents);
 		return (tree.getSha1());
 	}
 
-	private String toSHA1(String str) throws NoSuchAlgorithmException {
-		byte[] convertme = str.getBytes();
-		MessageDigest md = MessageDigest.getInstance("SHA-1");
-		return Base64.getEncoder().encodeToString(md.digest(convertme));
+	private String toSHA1(String value) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		digest.reset();
+		digest.update(value.getBytes("utf8"));
+		String sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+		return sha1;
 	}
 //	
 	//creates the SHA-named file in objects
@@ -139,7 +164,7 @@ public class Commit {
 		}
 	
 	//creates a file with these contents
-	private File contentOfFile () throws NoSuchAlgorithmException, IOException {
+	private String contentOfFile () throws NoSuchAlgorithmException, IOException {
 		String pSHA = "";
 		String treeSha = this.getTreeSha1();
 		String c = "";
@@ -149,37 +174,32 @@ public class Commit {
 		if (parent != null)
 			pSHA = "./objects/" + parent.returnSha();
 		if (nextCommit != null)
-			//c = "./objects/" + nextCommit.returnSha();
+			c = "./objects/" + nextCommit.returnSha();
 		if(treeSha == null) {
 			treeSha = "";
 		}
 		
 		
 		content = "./objects/"+treeSha + "\n" + pSHA + "\n" + c + "\n" + author + "\n" + date + "\n" + summary;
-		this.writeFile("commit.txt", content);
-		File contentFile = new File ("./commit.txt");
-		return contentFile;
+		return content;
 	}
 	
 	
-	private String returnSha () throws NoSuchAlgorithmException, IOException {
+	public String returnSha () throws NoSuchAlgorithmException, IOException {
 		return hash;
 	}
 
 	//sets the parent's nextCommit to child
 	private void setNextCommit (Commit child) throws NoSuchAlgorithmException, IOException {
+		System.out.println("Commit "+hash+" setting child " + child.returnSha()+"\n");
 		nextCommit = child;
-		//Files.deleteIfExists(Paths.get("./objects/"+hash));
-		File updated = new File("./objects/"+hash);
-		this.contentOfFile();
-		BufferedWriter bw = new BufferedWriter(new FileWriter(updated));
-		bw.append(content);
-		bw.close();
+		makeComFile();
 	}
 	
 	//sets the parent's nextCommit to this Commit
 	private boolean connectParent () throws NoSuchAlgorithmException, IOException {
 		if (parent != null) {
+			System.out.println("\nCommit "+this.returnSha()+" as child");
 			parent.setNextCommit(this);
 			return true;
 		}
@@ -187,7 +207,7 @@ public class Commit {
 	}
 
 	//generates SHA1Hash
-	private String generateSHA1Hash (String filePath) throws IOException, NoSuchAlgorithmException {
+	private String generateFileSHA1 (String filePath) throws IOException, NoSuchAlgorithmException {
 //		//https://gist.github.com/zeroleaf/6809843
 //		FileInputStream fileInputStream = new FileInputStream(filePath);
 //		MessageDigest digest = MessageDigest.getInstance("SHA-1");
@@ -200,7 +220,13 @@ public class Commit {
 //		byte[] resultByteArry = digest.digest();
 //		hash = bytesToHexString(resultByteArry);
 //		return hash;
-		hash = toSHA1(filePath);
+		String readStr = "";
+		File read = new File(filePath);
+		Scanner sc = new Scanner(read);
+		for(readStr = sc.nextLine(); sc.hasNextLine(); readStr += sc.nextLine()){}
+		System.out.println("ReadStr: "+ readStr);
+		hash = toSHA1(readStr);
+		System.out.println("ReadStr Hash: "+hash);
 		return hash;
 		
 	}
@@ -215,7 +241,7 @@ public class Commit {
 	
 	//writes String into file
 	private void writeFile (String fileName, String content) throws IOException {
-		System.out.println("\nFile name:" + fileName + "\n\ncontent:\n" + content);
+		System.out.println("\nFile name:" + fileName + "\ncontent:\n" + content);
 		 Path p = Paths.get(fileName);
 	        try {
 	            Files.writeString(p, content, StandardCharsets.ISO_8859_1);

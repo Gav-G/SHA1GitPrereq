@@ -8,6 +8,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +25,8 @@ public class Blob {
 	//creates Blob from file path
 	public Blob (String filePath) throws IOException, NoSuchAlgorithmException {
 		fileContent = this.content(filePath);
-		this.generateSHA1Hash(filePath);
+		SHA1Hash = getSHA(fileContent);
+		//this.generateSHA1Hash(filePath);
 		String hashFile = this.createsNewFile();
 	//	String zipFilePath = this.zipFile(hashFile);
 		//storesZippedContent = this.content(zipFilePath);
@@ -36,6 +39,14 @@ public class Blob {
 	}
 		
 
+	private String getSHA(String value) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+		MessageDigest digest = MessageDigest.getInstance("SHA-1");
+		digest.reset();
+		digest.update(value.getBytes("utf8"));
+		String sha1 = String.format("%040x", new BigInteger(1, digest.digest()));
+		return sha1;
+	}
+	
 	//generates a Hash String for given filepath
 	public String generateSHA1Hash (String filePath) throws IOException, NoSuchAlgorithmException {
 		//https://gist.github.com/zeroleaf/6809843
