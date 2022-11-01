@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -92,51 +93,165 @@ public class Commit {
 	}
 	
 	public boolean editFile(String fileName) throws NoSuchAlgorithmException, IOException {
-		FileWriter fw = new FileWriter("./index");
-		BufferedWriter bw = new BufferedWriter(fw);
-		bw.append("*edited* "+fileName);
-		bw.close();
-		fw.close();
+//		FileWriter fw = new FileWriter("./index");
+//		BufferedWriter bw = new BufferedWriter(fw);
+//		bw.append("*edited* "+fileName);
+//		bw.close();
+//		fw.close();
 		return true;
 	}
 	
 	public boolean deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
-		FileWriter fw = new FileWriter("./index");
-		BufferedWriter bw = new BufferedWriter(fw);
-		bw.append("*deleted* "+fileName);
-		bw.close();
-		fw.close();
+//		FileWriter fw = new FileWriter("./index");
+//		BufferedWriter bw = new BufferedWriter(fw);
+//		bw.append("*deleted* "+fileName);
+//		bw.close();
+//		fw.close();
 		return true;
 	}
 	
 	
 	private ArrayList<String> getTreeContents() throws NoSuchAlgorithmException, IOException {
-		ArrayList<String> arr = new ArrayList<String>();
+		ArrayList<String> toAdd = new ArrayList<String>();
+		ArrayList<String> edtDel = new ArrayList<String>();
 		String fileName;
 		String sha;
 		File ind = new File("./index");
 		Scanner sc = new Scanner(ind);
 		while(sc.hasNextLine()) {
+			
 			fileName = sc.next();
-			if(fileName.charAt(0) == '*') {
-				String nFileName = sc.next();
-				for(int i = 0; i<arr.size(); i++) {
-					if(arr.get(i).contains(nFileName)) {
-						arr.remove(i);
-						break;
-					}
-				}
+			System.out.println("READING INDEX--> filename:"+fileName);
+			if(fileName.contains("*")) {
+				fileName = sc.next();
+				System.out.println("filename: "+fileName+"  TreeSha1: "+ parent.getTreeSha1());
+				edtDel.add(findFileSha(fileName, parent.getTreeSha1()));
+				System.out.println("ADDED EDDL: "+findFileSha(fileName, parent.getTreeSha1()));
 			}else {
+				
 				sha = (sc.next() + sc.next()).substring(1);
-				arr.add("blob : "+sha + " "+fileName);
+				System.out.println("ADDING: blob : "+sha + " "+fileName);
+				toAdd.add("blob : "+sha + " "+fileName);
+			}
+			
+		}
+		
+		File hd = new File("HEAD");
+		Scanner headSc = new Scanner(hd);
+		if(sc.hasNext()) {
+			String headSha = sc.next();
+		}
+		if(edtDel.isEmpty()) {
+			if (parent != null) {
+				toAdd.add("tree : "+ parent.getTreeSha1());
+			}
+		}else {
+			toAdd = makeAddArray(toAdd, edtDel, parent.getTreeSha1(), parent.getTreeSha1());
+		}
+//		if (parent != null) {
+//			toAdd.add("tree : "+ parent.getTreeSha1());
+//		}
+		sc.close();
+		return toAdd;
+		
+	}
+	
+	private String findFileSha(String fileName, String trSha) throws FileNotFoundException {
+		File trFl = new File("./objects/"+trSha);
+		Scanner trScanner = new Scanner(trFl);
+		String sha;
+		String tSha="";
+		String fileN; 
+		while(trScanner.hasNextLine() && trScanner.hasNext()) {
+			sha = trScanner.next() + trScanner.next();
+			if(sha.contains("tree:")) {
+				tSha = trScanner.next();
+			}else {
+				System.out.println("SHA: " + sha);
+				sha = trScanner.next();
+				fileN = trScanner.next();
+				if(fileName.equals(fileN)) {
+					return sha;
+				}
+				//sha = trScanner.next();
 			}
 		}
-		sc.close();
-		if (parent != null) {
-			arr.add("tree : "+ parent.getTreeSha1());
+		if(tSha.equals(""))
+			return "";
+		return findFileSha(fileName, tSha);
+	}
+	
+	private ArrayList<String> makeAddArray(ArrayList<String> add, ArrayList<String> edDl, String trSha, String conTr) throws FileNotFoundException{
+	
+		String addStr;
+//		File cmFl = new File("./objects/"+cmSha);
+//		Scanner trSc = new Scanner(cmFl);
+//		String trSha = trSc.nextLine().substring(10);
+		if(trSha.equals("")) {
+			if(!conTr.equals("")) {
+				File conTrFl = new File("./objects/"+conTr);
+				Scanner cTFSc = new Scanner(conTrFl);
+				ArrayList<String> conTrArr = new ArrayList<String>();
+				String cTrAdd;
+				boolean clearContent = true;
+				if(cTFSc.hasNextLine()) {
+					cTrAdd = cTFSc.nextLine();
+					System.out.println("CTRADD: "+cTrAdd);
+					conTrArr.add(cTrAdd);
+					clearContent = clearContent == true && add.contains(cTrAdd);
+					while(cTFSc.hasNextLine() && cTFSc.hasNext()) {
+						cTrAdd = cTFSc.nextLine();
+						System.out.println("CTRADD: "+cTrAdd);
+						conTrArr.add(cTrAdd);
+						clearContent = clearContent == true && add.contains(cTrAdd);
+					}
+					System.out.println("CLRCONT: " + clearContent +", SIZE: "+add.size());
+				}
+				if(clearContent) {
+					for(int i = add.size()-1; i>=0; i--) {
+						if(conTrArr.contains(add.get(i))) {
+							System.out.println("CLEARING: "+add.get(i) + " AT INDEX "+i +" size "+add.size());
+							add.remove(i);
+						}
+					}
+				}
+			}
+			
+			if(!conTr.equals("")) {
+				add.add("tree : "+conTr);
+			}
+			return add;
 		}
-		return arr;
+		File trFl = new File("./objects/"+trSha);
+		String parTrSha = "";
+		Scanner addSc = new Scanner(trFl);
+		boolean setNewTr = false;
+		while(addSc.hasNextLine()) {
+			addStr = addSc.nextLine();
+			System.out.println("ADDSTR: " + addStr);
+			String addSha = addStr.substring(7, addStr.length()-10);
+			System.out.println("ADDSHA: " + addSha);
+			if(addStr.contains("tree :")) {
+				parTrSha = addStr.substring(7);
+			}else {
+				System.out.println("EDDL AT 0: "+edDl.get(0) + ", "+addSha+", "+edDl.contains(addSha));
+				if(edDl.contains(addSha)) {
+					System.out.println("EDDL FOUND FOR " + addStr);
+					setNewTr = true;
+				}else {
+					System.out.println("ADDING: "+addStr);
+					add.add(addStr);
+				}
+			}
+		}
 		
+		addSc.close();
+		
+		if(setNewTr) { 
+				conTr = parTrSha;
+		}
+		
+		return makeAddArray(add, edDl, parTrSha, conTr);
 	}
 	
 	public String getTreeSha1() {
@@ -183,6 +298,7 @@ public class Commit {
 		content = "./objects/"+treeSha + "\n" + pSHA + "\n" + c + "\n" + author + "\n" + date + "\n" + summary;
 		return content;
 	}
+	
 	
 	
 	public String returnSha () throws NoSuchAlgorithmException, IOException {

@@ -91,6 +91,8 @@ public class Tree {
 	}
 	
 	private String arrLstToStr(ArrayList<String> array) {
+		if(array.isEmpty())
+			return "";
 		String arrStr = array.get(0) + "\n";
 		if(array.size()>1) {
 			for(int i = 1; i<array.size(); i++) {

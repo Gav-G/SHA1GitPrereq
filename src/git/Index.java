@@ -2,6 +2,7 @@ package git;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -64,6 +65,32 @@ public class Index {
 		//txtMap.put (fileName, hash);
 //		this.updateIndex();
 	}
+	
+	public boolean editFile(String fileName) throws NoSuchAlgorithmException, IOException {
+		writeIndex("*edited* "+fileName);
+		return true;
+	}
+	
+	public boolean deleteFile(String fileName) throws NoSuchAlgorithmException, IOException {
+		writeIndex("*deleted* "+fileName);
+		return true;
+	}
+	//writes a string in Index
+	private void writeIndex(String toAdd) throws IOException {
+		String indCont = "";
+		Scanner sc = new Scanner(index);
+		if(sc.hasNextLine()) {
+			indCont= sc.nextLine();
+			while(sc.hasNextLine()) {
+				indCont += "\n"+sc.nextLine();
+			}
+		}
+		BufferedWriter bw = new BufferedWriter(new FileWriter(index));
+		bw.append(indCont+"\n"+toAdd);
+		bw.close();
+	}
+	
+	
 
 //	public void updateIndex () throws IOException {
 //		BufferedWriter bf = new BufferedWriter(new FileWriter(index));
